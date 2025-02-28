@@ -115,29 +115,49 @@ export const useSkyWay = () => {
   // 切断処理を先に定義
   const disconnect = useCallback(async () => {
     try {
-      if (person && publications.length > 0) {
-        for (const pubId of publications) {
-          await person.unpublish(pubId);
-        }
-        setPublications([]);
-        setStream(null);
-      }
+      // 最初に状態をクリア
+      setStream(null);
+      setIsMuted(false);
+      setPublications([]);
+
+      // person のクリーンアップ
       if (person) {
-        await person.leave();
-        setPerson(null);
+        if (publications.length > 0) {
+          for (const pubId of publications) {
+            try {
+              await person.unpublish(pubId);
+            } catch (error) {
+              console.warn('Publication unpublish error:', error);
+            }
+          }
+        }
+        try {
+          await person.leave();
+        } catch (error) {
+          console.warn('Person leave error:', error);
+        }
       }
-      if (channel) {
-        setChannel(null);
-      }
+      setPerson(null);
+
+      // channel のクリーンアップ
+      setChannel(null);
+
+      // context のクリーンアップ
       if (context) {
-        await context.dispose();
-        setContext(null);
+        try {
+          await context.dispose();
+        } catch (error) {
+          console.warn('Context dispose error:', error);
+        }
       }
+      setContext(null);
+
+      // 最後に participants をクリア
       setParticipants([]);
     } catch (error) {
       console.error('切断エラー:', error);
     }
-  }, [context, channel, person, publications]);
+  }, [context, person, publications]);
 
   const connect = useCallback(async (username: string): Promise<ConnectResult> => {
     try {
