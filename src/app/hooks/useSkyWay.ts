@@ -1,15 +1,10 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-
-// SkyWayの型定義のみをインポート
 import type { SkyWayContext } from '@skyway-sdk/room';
 import type {
   Channel,
-  SkyWayChannel,
   LocalPerson,
-  LocalStream,
   LocalAudioStream,
   Member,
   MemberJoinedEvent,

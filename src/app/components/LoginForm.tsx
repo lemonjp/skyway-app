@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import usersData from '../data/users.json';
 import { useSkyWay } from '../hooks/useSkyWay';
 
 type LoginFormProps = {
@@ -17,16 +16,21 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim()) {
-      setError('ユーザー名を入力してください');
-      return;
-    }
+    setIsLoading(true);
+    try {
+      if (!username.trim()) {
+        setError('ユーザー名を入力してください');
+        return;
+      }
 
-    const result = await connect(username);
-    if (result.success) {
-      onLoginSuccess(username);
-    } else {
-      setError(result.error || 'ログインに失敗しました');
+      const result = await connect(username);
+      if (result.success) {
+        onLoginSuccess(username);
+      } else {
+        setError(result.error || 'ログインに失敗しました');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
